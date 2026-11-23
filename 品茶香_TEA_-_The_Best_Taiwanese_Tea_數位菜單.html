@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>品茶香 TEA - The Best Taiwanese Tea | 數位菜單</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tea: {
+                            paper: '#FAF7F2',     // 暖米白宣紙底色
+                            paperDark: '#F0EBE1',
+                            green: '#1E3A2F',     // 深墨茶綠
+                            greenLight: '#2C5243',
+                            red: '#D61C1C',       // 品牌招牌硃砂紅
+                            redDark: '#AD1414',
+                            gold: '#C89D3C',      // 燙金點綴
+                            goldLight: '#E5C675'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            background-color: #FAF7F2;
+            color: #1E3A2F;
+            -webkit-tap-highlight-color: transparent;
+            background-image: 
+                radial-gradient(rgba(30, 58, 47, 0.04) 1px, transparent 0),
+                radial-gradient(rgba(200, 157, 60, 0.04) 1px, transparent 0);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+        }
+        .paper-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(30, 58, 47, 0.12);
+            box-shadow: 0 2px 10px rgba(30, 58, 47, 0.04);
+        }
+        .tea-green-gradient {
+            background: linear-gradient(155deg, #1E3A2F 0%, #142820 100%);
+        }
+        .vermilion-shadow {
+            box-shadow: 0 4px 14px rgba(214, 28, 28, 0.25);
+        }
+        .logo-blend {
+            mix-blend-mode: multiply;
+            filter: contrast(1.04);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up {
+            animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="pb-28 select-none">
+
+    <!-- 頂部品牌頁首：支援官方 Logo 載入無縫去背融合與一鍵匯出正式版 HTML -->
+    <header class="bg-tea-paper border-b-2 border-tea-gold/30 pt-3.5 pb-4 px-4 shadow-2xs relative overflow-hidden">
+        <!-- 精品茶園浮水印裝飾 -->
+        <div class="absolute -right-8 -bottom-10 opacity-[0.045] pointer-events-none">
+            <i class="fa-solid fa-leaf text-[160px] text-tea-green transform -rotate-12"></i>
+        </div>
+
+        <div class="max-w-lg mx-auto relative z-10">
+            <!-- 頂部精品茶園標記與匯出按鈕列 -->
+            <div class="flex items-center justify-between text-[11px] text-tea-green/80 mb-2">
+                <span class="inline-flex items-center gap-1.5 font-bold tracking-widest text-tea-green">
+                    <span class="w-2 h-2 rounded-full bg-tea-red inline-block"></span>
+                    TAIWAN ARTISAN TEA
+                </span>
+                
+                <div class="flex items-center gap-1.5">
+                    <!-- 載入 Logo 後才會顯示的「匯出含Logo完整網頁」按鈕 -->
+                    <button id="exportHtmlBtn" onclick="exportCleanHtmlWithLogo()" 
+                        class="hidden bg-tea-green hover:bg-tea-greenLight text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-sm active:scale-95 transition flex items-center gap-1.5 border border-tea-gold/40">
+                        <i class="fa-solid fa-file-export text-tea-goldLight"></i>
+                        <span>匯出含Logo完整網頁</span>
+                    </button>
+                    <span id="estateBadge" class="bg-tea-paperDark border border-tea-gold/30 px-2.5 py-0.5 rounded-full text-tea-green font-medium">
+                        台灣精品茶園・現泡茶
+                    </span>
+                </div>
+            </div>
+
+            <!-- 隱藏的圖片選擇器 -->
+            <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoFileSelect(event)">
+
+            <!-- Logo 顯示與載入區 -->
+            <div id="logoSection" class="w-full">
+                <!-- 狀態 A：已載入官方 Logo 照片（無縫融入暖米白宣紙背景） -->
+                <div id="loadedLogoContainer" class="hidden w-full py-1.5 flex flex-col items-center justify-center">
+                    <img id="officialLogoImg" src="" alt="品茶香 TEA - The Best Taiwanese Tea" 
+                        class="w-full max-w-[390px] max-h-32 object-contain logo-blend mx-auto select-none">
+                    <button id="reuploadLogoBtn" onclick="triggerLogoPicker()" 
+                        class="mt-1.5 inline-flex items-center gap-1 text-[10px] text-tea-green/60 hover:text-tea-red bg-tea-paperDark/90 px-2.5 py-0.5 rounded-full transition">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>重新選擇 Logo 照片</span>
+                    </button>
+                </div>
+
+                <!-- 狀態 B：未載入圖片時的精品茶園標題與紅色載入按鈕 -->
+                <div id="defaultHeaderContainer" class="w-full bg-white/85 border border-tea-gold/40 rounded-2xl p-4 text-center shadow-2xs">
+                    <div class="inline-flex items-center justify-center gap-2 mb-1">
+                        <span class="bg-tea-red text-white font-black text-sm px-2 py-0.5 rounded tracking-wider">TEA</span>
+                        <h1 class="font-serif font-black text-2xl sm:text-3xl text-tea-green tracking-widest">品茶香</h1>
+                    </div>
+                    <p class="text-xs font-bold text-tea-gold tracking-[0.18em] uppercase mb-3">
+                        The Best Taiwanese Tea
+                    </p>
+                    
+                    <button id="uploadLogoTriggerBtn" onclick="triggerLogoPicker()" 
+                        class="inline-flex items-center justify-center gap-2 bg-tea-red hover:bg-tea-redDark text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-full vermilion-shadow active:scale-95 transition">
+                        <i class="fa-solid fa-image"></i>
+                        <span>點此載入您的官方 Logo 照片預覽</span>
+                    </button>
+                    <p class="text-[10px] text-tea-green/60 mt-2">
+                        選取照片後白底將自動融入宣紙背景，並可一鍵匯出正式版網頁
+                    </p>
+                </div>
+            </div>
+
+            <!-- 即時中英文關鍵字搜尋框 -->
+            <div class="mt-3 relative">
+                <input type="text" id="searchInput" placeholder="搜尋中英文茶名、特色（如：紅玉、Ruby、星巴克、無咖啡因...）" 
+                    class="w-full bg-white text-tea-green placeholder-tea-green/45 text-xs sm:text-sm rounded-2xl py-2.5 pl-10 pr-9 border border-tea-green/20 focus:outline-none focus:border-tea-red shadow-2xs transition">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-tea-red text-sm"></i>
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-2.5 text-tea-green/50 hover:text-tea-red p-0.5">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主內容區 -->
+    <main class="max-w-lg mx-auto px-4 mt-4">
+
+        <!-- 甜度與冰量指南卡片（完整對照菜單杯身設計，可展開/收合） -->
+        <div class="paper-card rounded-2xl overflow-hidden mb-4 border-tea-gold/30">
+            <button onclick="toggleGuide()" class="w-full px-4 py-3 flex items-center justify-between bg-white active:bg-tea-paperDark/60 transition">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-6 h-6 rounded-lg bg-tea-green text-tea-goldLight flex items-center justify-center text-xs shadow-2xs">
+                        <i class="fa-solid fa-mug-hot"></i>
+                    </span>
+                    <span class="font-bold text-sm text-tea-green">甜度與冰量指南</span>
+                    <span class="text-[11px] text-tea-red bg-tea-red/10 px-2 py-0.5 rounded-full font-bold">Sugar & Ice</span>
+                </div>
+                <i id="guideChevron" class="fa-solid fa-chevron-down text-tea-green/70 text-xs transition-transform duration-300"></i>
+            </button>
+            
+            <div id="guideContent" class="hidden px-4 py-4 border-t border-tea-green/10 bg-tea-paper/70 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- 左欄：甜度 Sugar Level -->
+                    <div class="bg-white rounded-xl p-3 border border-tea-green/10 shadow-2xs">
+                        <div class="text-center border-b border-tea-green/10 pb-2 mb-2.5">
+                            <div class="font-serif font-bold text-sm text-tea-green">甜度</div>
+                            <div class="text-[10px] text-tea-gold font-bold tracking-wider">Sugar Level</div>
+                        </div>
+                        <ul class="space-y-2 text-center">
+                            <li class="bg-amber-50/70 py-1.5 rounded-lg">
+                                <div class="font-bold text-tea-green">正常甜</div>
+                                <div class="text-[10px] text-gray-500">Regular</div>
+                            </li>
+                            <li class="bg-amber-50/50 py-1.5 rounded-lg">
+                                <div class="font-bold text-tea-green">8分 (少糖)</div>
+                                <div class="text-[10px] text-gray-500">80%</div>
+                            </li>
+                            <li class="bg-amber-50/40 py-1.5 rounded-lg">
+                                <div class="font-bold text-tea-green">5分 (半糖)</div>
+                                <div class="text-[10px] text-gray-500">Half</div>
+                            </li>
+                            <li class="bg-amber-50/30 py-1.5 rounded-lg">
+                                <div class="font-bold text-tea-green">3分 (微糖)</div>
+                                <div class="text-[10px] text-gray-500">Light</div>
+                            </li>
+                            <li class="bg-gray-50 py-1.5 rounded-lg">
+                                <div class="font-bold text-tea-green">無糖</div>
+                                <div class="text-[10px] text-gray-500">Suga Free</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 右欄：冰量 Ice Level -->
+                    <div class="bg-white rounded-xl p-3 border border-tea-green/10 shadow-2xs">
+                        <div class="text-center border-b border-tea-green/10 pb-2 mb-2.5">
+                            <div class="font-serif font-bold text-sm text-tea-green">冰量</div>
+                            <div class="text-[10px] text-sky-600 font-bold tracking-wider">Ice Level</div>
+                        </div>
+                        <ul class="space-y-1.5 text-center">
+                            <li class="bg-sky-50/80 py-1 rounded-lg">
+                                <div class="font-bold text-tea-green">正常冰</div>
+                                <div class="text-[10px] text-gray-500">Regular</div>
+                            </li>
+                            <li class="bg-sky-50/60 py-1 rounded-lg">
+                                <div class="font-bold text-tea-green">少冰</div>
+                                <div class="text-[10px] text-gray-500">Easy (70% Ice)</div>
+                            </li>
+                            <li class="bg-sky-50/40 py-1 rounded-lg">
+                                <div class="font-bold text-tea-green">微冰</div>
+                                <div class="text-[10px] text-gray-500">Light (30% Ice)</div>
+                            </li>
+                            <li class="bg-sky-50/25 py-1 rounded-lg">
+                                <div class="font-bold text-tea-green">去冰 / 小碎冰</div>
+                                <div class="text-[10px] text-gray-500">Ice Free</div>
+                            </li>
+                            <li class="bg-gray-50 py-1 rounded-lg">
+                                <div class="font-bold text-tea-green">常溫</div>
+                                <div class="text-[10px] text-gray-500">Room Temperature</div>
+                            </li>
+                            <li class="bg-rose-50/80 py-1 rounded-lg grid grid-cols-2 divide-x divide-rose-200/60">
+                                <div>
+                                    <div class="font-bold text-tea-red">溫</div>
+                                    <div class="text-[9px] text-gray-500">Warm</div>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-tea-red">熱</div>
+                                    <div class="text-[9px] text-gray-500">Hot</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 粘性分類頁籤 (Sticky Tabs) -->
+        <div class="sticky top-0 z-30 bg-tea-paper/95 backdrop-blur-md py-2 -mx-4 px-4 border-b border-tea-green/10">
+            <div id="categoryTabs" class="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
+                <!-- 由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 菜單列表容器 -->
+        <div id="menuContainer" class="mt-4 space-y-7">
+            <!-- 由 JS 動態渲染各分類飲品 -->
+        </div>
+
+    </main>
+
+    <!-- 底部懸浮購物車列 -->
+    <div id="floatingCartBar" class="fixed bottom-4 left-0 right-0 z-40 px-4 transition-transform duration-300 translate-y-28">
+        <div class="max-w-lg mx-auto tea-green-gradient text-white rounded-2xl shadow-2xl p-3.5 flex items-center justify-between border border-tea-gold/40">
+            <div onclick="openCartModal()" class="flex items-center gap-3 cursor-pointer flex-1">
+                <div class="relative bg-tea-red text-white w-11 h-11 rounded-xl flex items-center justify-center font-bold vermilion-shadow">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-white text-tea-red text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-tea-red">0</span>
+                </div>
+                <div>
+                    <div class="text-[11px] text-tea-paper/75">品茶香・我的點單</div>
+                    <div class="font-serif text-lg font-bold text-white">
+                        總計 <span class="text-tea-goldLight">$<span id="cartTotalPrice">0</span></span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="openCartModal()" class="bg-tea-red hover:bg-tea-redDark text-white font-bold text-sm px-5 py-2.5 rounded-xl vermilion-shadow active:scale-95 transition flex items-center gap-1.5">
+                <span>檢視明細</span>
+                <i class="fa-solid fa-angle-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 客製化選購彈窗 (Item Customization Modal) -->
+    <div id="itemModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity" onclick="closeItemModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 max-w-lg mx-auto bg-tea-paper rounded-t-3xl shadow-2xl p-5 max-h-[90vh] overflow-y-auto animate-slide-up">
+            <div class="w-10 h-1 bg-tea-green/20 rounded-full mx-auto mb-4"></div>
+            
+            <!-- 品項標題與特色 -->
+            <div class="flex justify-between items-start border-b border-tea-green/10 pb-3.5">
+                <div class="pr-2">
+                    <span id="modalCategoryTag" class="text-[11px] font-bold text-tea-red bg-tea-red/10 px-2 py-0.5 rounded-md"></span>
+                    <h3 id="modalTitle" class="font-serif text-xl font-bold text-tea-green mt-1.5"></h3>
+                    <p id="modalEnTitle" class="text-xs text-tea-green/60 mt-0.5"></p>
+                    <div id="modalTags" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
+                <button onclick="closeItemModal()" class="w-8 h-8 rounded-full bg-tea-paperDark text-tea-green flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- 1. 選擇冷熱與杯型 -->
+            <div class="mt-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-xs font-bold text-tea-green">1. 選擇冷熱 / 杯型規格 <span class="text-tea-red">*</span></label>
+                    <span id="tempConstraintHint" class="text-[11px] text-tea-red font-bold hidden"></span>
+                </div>
+                <div id="modalTempOptions" class="grid grid-cols-2 gap-2.5">
+                    <!-- JS 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 2. 選擇甜度 -->
+            <div class="mt-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-xs font-bold text-tea-green">2. 選擇甜度 Sugar Level <span class="text-tea-red">*</span></label>
+                    <span id="sugarConstraintHint" class="text-[11px] text-tea-red font-bold hidden"></span>
+                </div>
+                <div id="modalSugarOptions" class="grid grid-cols-3 gap-1.5">
+                    <!-- JS 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 3. 選擇冰量 -->
+            <div class="mt-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-xs font-bold text-tea-green">3. 選擇冰量 Ice Level <span class="text-tea-red">*</span></label>
+                    <span id="iceConstraintHint" class="text-[11px] text-sky-700 font-bold hidden"></span>
+                </div>
+                <div id="modalIceOptions" class="grid grid-cols-3 gap-1.5">
+                    <!-- JS 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 4. 單杯備註 -->
+            <div class="mt-4">
+                <label class="block text-xs font-bold text-tea-green mb-1.5">4. 單杯備註 <span class="text-gray-400 font-normal">(選填，如：鮮奶茶/厚奶茶互換)</span></label>
+                <input type="text" id="modalNoteInput" placeholder="例如：厚奶茶換鮮奶茶、去茶包..." 
+                    class="w-full bg-white text-tea-green placeholder-gray-400 text-xs rounded-xl py-2.5 px-3 border border-tea-green/15 focus:outline-none focus:border-tea-red">
+            </div>
+
+            <!-- 數量與加入按鈕 -->
+            <div class="mt-6 pt-4 border-t border-tea-green/10 flex items-center gap-3">
+                <div class="flex items-center bg-white border border-tea-green/15 rounded-xl p-1">
+                    <button onclick="changeModalQty(-1)" class="w-9 h-9 rounded-lg bg-tea-paperDark text-tea-green font-bold active:bg-tea-green/10">-</button>
+                    <span id="modalQty" class="w-9 text-center font-bold text-tea-green">1</span>
+                    <button onclick="changeModalQty(1)" class="w-9 h-9 rounded-lg bg-tea-paperDark text-tea-green font-bold active:bg-tea-green/10">+</button>
+                </div>
+                <button onclick="addToCart()" class="flex-1 bg-tea-red hover:bg-tea-redDark text-white font-bold py-3.5 px-4 rounded-xl vermilion-shadow active:scale-98 transition flex items-center justify-center gap-2">
+                    <span>加入購物車</span>
+                    <span class="bg-white/20 px-2 py-0.5 rounded-md text-sm">$<span id="modalSubtotal">0</span></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 購物車明細與匯出彈窗 (Cart Modal) -->
+    <div id="cartModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/65 backdrop-blur-xs" onclick="closeCartModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 max-w-lg mx-auto bg-tea-paper rounded-t-3xl shadow-2xl p-5 max-h-[90vh] flex flex-col">
+            <div class="w-10 h-1 bg-tea-green/20 rounded-full mx-auto mb-3 shrink-0"></div>
+            
+            <div class="flex items-center justify-between pb-3 border-b border-tea-green/10 shrink-0">
+                <div>
+                    <h3 class="font-serif text-xl font-bold text-tea-green">品茶香・點單明細</h3>
+                    <p class="text-xs text-tea-green/60">可一鍵複製明細或直接傳送至 LINE 給店家</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearCart()" class="text-xs text-tea-red bg-tea-red/10 px-2.5 py-1.5 rounded-lg font-bold">
+                        <i class="fa-regular fa-trash-can mr-1"></i>清空
+                    </button>
+                    <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-tea-paperDark text-tea-green flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 購物車品項列表 -->
+            <div id="cartItemsList" class="py-3 overflow-y-auto flex-1 space-y-2.5">
+                <!-- JS 動態生成 -->
+            </div>
+
+            <!-- 底部總結與複製/LINE傳送按鈕 -->
+            <div class="pt-3 border-t border-tea-green/10 shrink-0 space-y-2.5">
+                <div class="flex justify-between items-center bg-white border border-tea-green/10 px-4 py-2.5 rounded-xl">
+                    <span class="text-sm font-medium text-tea-green">共 <strong id="cartModalCount" class="text-tea-red text-base">0</strong> 杯飲品</span>
+                    <div class="text-right">
+                        <span class="text-xs text-gray-500 mr-1">總金額</span>
+                        <span class="font-serif text-2xl font-bold text-tea-green">$<span id="cartModalTotal">0</span></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button onclick="copyOrderText()" class="bg-white border-2 border-tea-green text-tea-green font-bold py-3 rounded-xl text-xs sm:text-sm active:scale-95 transition flex items-center justify-center gap-1.5 shadow-2xs">
+                        <i class="fa-regular fa-copy text-sm"></i>
+                        <span>一鍵複製點單明細</span>
+                    </button>
+                    <button onclick="sendViaLine()" class="bg-[#06C755] text-white font-bold py-3 rounded-xl text-xs sm:text-sm active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md">
+                        <i class="fa-brands fa-line text-base"></i>
+                        <span>直接傳送至 LINE</span>
+                    </button>
+                </div>
+                <button onclick="closeCartModal()" class="w-full tea-green-gradient text-white font-bold py-2.5 rounded-xl text-xs active:scale-98 transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-plus text-tea-goldLight"></i>
+                    <span>繼續選購其他茶飲</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自訂提示訊息框 (Toast Notification) -->
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-tea-green text-white border border-tea-gold/50 px-4 py-2.5 rounded-full shadow-xl text-xs font-medium flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300 whitespace-nowrap">
+        <i class="fa-solid fa-circle-check text-tea-goldLight"></i>
+        <span id="toastMessage">已加入購物車</span>
+    </div>
+
+    <script>
+        // ==================== 官方 Logo 載入、去背融合與匯出正式版 HTML 邏輯 ====================
+        let loadedLogoBase64 = '';
+
+        function triggerLogoPicker() {
+            document.getElementById('logoFileInput').click();
+        }
+
+        function handleLogoFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // 最佳化圖片尺寸（寬度上限 960px）確保匯出後的單一 HTML 檔案在手機載入流暢
+                    const maxWidth = 960;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    loadedLogoBase64 = canvas.toDataURL('image/png', 0.92);
+
+                    // 顯示官方 Logo 照片並隱藏預設標題
+                    const logoImgEl = document.getElementById('officialLogoImg');
+                    logoImgEl.src = loadedLogoBase64;
+                    document.getElementById('loadedLogoContainer').classList.remove('hidden');
+                    document.getElementById('defaultHeaderContainer').classList.add('hidden');
+
+                    // 右上角顯示「匯出含Logo完整網頁」按鈕
+                    document.getElementById('exportHtmlBtn').classList.remove('hidden');
+                    document.getElementById('estateBadge').classList.add('hidden');
+
+                    showToast('官方 Logo 已載入！白底已自動融入暖米白宣紙背景');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 點擊「匯出含Logo完整網頁」：產生乾淨正式版 index.html（客人開啟直接看到 Logo，不含上傳與匯出按鈕）
+        function exportCleanHtmlWithLogo() {
+            const logoImgEl = document.getElementById('officialLogoImg');
+            const finalLogoSrc = loadedLogoBase64 || (logoImgEl ? logoImgEl.src : '');
+            if (!finalLogoSrc) {
+                showToast('請先載入您的官方 Logo 照片');
+                return;
+            }
+
+            // 複製一份目前文件的 DOM 進行乾淨版輸出處理
+            const clonedDoc = document.documentElement.cloneNode(true);
+
+            // 1. 將 Base64 Logo 永久寫入圖片 src 並設為顯示
+            const clonedLogoImg = clonedDoc.querySelector('#officialLogoImg');
+            const clonedLoadedContainer = clonedDoc.querySelector('#loadedLogoContainer');
+            if (clonedLogoImg && clonedLoadedContainer) {
+                clonedLogoImg.setAttribute('src', finalLogoSrc);
+                clonedLoadedContainer.classList.remove('hidden');
+            }
+
+            // 2. 移除所有上傳與匯出工具按鈕，讓客人開啟時畫面最乾淨專業
+            const elementsToRemove = [
+                '#defaultHeaderContainer',
+                '#logoFileInput',
+                '#reuploadLogoBtn',
+                '#exportHtmlBtn'
+            ];
+            elementsToRemove.forEach(selector => {
+                const el = clonedDoc.querySelector(selector);
+                if (el) el.remove();
+            });
+
+            // 3. 恢復顯示精品茶園標記
+            const clonedEstateBadge = clonedDoc.querySelector('#estateBadge');
+            if (clonedEstateBadge) {
+                clonedEstateBadge.classList.remove('hidden');
+            }
+
+            // 4. 重置預覽期間的搜尋字詞或打開的彈窗狀態
+            const clonedSearchInput = clonedDoc.querySelector('#searchInput');
+            if (clonedSearchInput) clonedSearchInput.setAttribute('value', '');
+            const clonedItemModal = clonedDoc.querySelector('#itemModal');
+            if (clonedItemModal) clonedItemModal.classList.add('hidden');
+            const clonedCartModal = clonedDoc.querySelector('#cartModal');
+            if (clonedCartModal) clonedCartModal.classList.add('hidden');
+
+            const finalHtmlString = '<!DOCTYPE html>\n' + clonedDoc.outerHTML;
+
+            // 觸發下載 index.html
+            const blob = new Blob([finalHtmlString], { type: 'text/html;charset=utf-8' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = 'index.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(downloadUrl);
+
+            showToast('已匯出正式版 index.html！可直接上傳給客人使用');
+        }
+
+        // ==================== 完整菜單資料庫（依據 IMG_9122.jpeg 逐項精準收錄共 31 款） ====================
+        const menuData = [
+            {
+                id: 'cat-tea',
+                name: '品茶/現泡茶',
+                shortName: '品茶/現泡茶',
+                icon: 'fa-leaf',
+                subtitle: '',
+                items: [
+                    {
+                        id: 't1',
+                        name: '春烏龍',
+                        en: 'Spring Oolong',
+                        tags: ['優雅焙香'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 40 }]
+                    },
+                    {
+                        id: 't2',
+                        name: '冷萃冬片',
+                        en: 'Cold Brewed Winter Tea',
+                        tags: ['生茶/茶湯超順口'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 40 }]
+                    },
+                    {
+                        id: 't3',
+                        name: '金萱茶王',
+                        en: 'Fruit Taste Jinxuan Tea',
+                        tags: ['生茶/獨特清香', '冰量-限微少正'],
+                        iceLimit: ['微冰', '少冰', '正常冰'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 45 }]
+                    },
+                    {
+                        id: 't4',
+                        name: '高山綠茶',
+                        en: 'High Mountain Green Tea',
+                        tags: ['現泡茶', '尾韻留有三層坪山頭氣息'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 50 }]
+                    },
+                    {
+                        id: 't5',
+                        name: '台灣阿薩姆紅茶',
+                        en: 'Taiwanese Assam tea',
+                        tags: ['微酸的熱果韻'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 45 }]
+                    },
+                    {
+                        id: 't6',
+                        name: '金萱烏龍',
+                        en: 'Jin Xuan oolong tea',
+                        tags: ['醇厚焙香'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 60 },
+                            { type: 'hot', label: '熱 (M杯)', price: 50 }
+                        ]
+                    },
+                    {
+                        id: 't7',
+                        name: '頂級GABA紅茶',
+                        en: 'Top GABA black tea',
+                        tags: ['現沖茶', '淡淡荔香/極低咖啡因'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 65 },
+                            { type: 'hot', label: '熱 (M杯)', price: 55 }
+                        ]
+                    },
+                    {
+                        id: 't8',
+                        name: '台灣紅玉',
+                        en: 'Taiwan Ruby Black Tea (TTES No.18 Ruby)',
+                        tags: ['現泡茶', '紅茶', '甘醇如蜜香'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 70 },
+                            { type: 'hot', label: '熱 (M杯)', price: 60 }
+                        ]
+                    },
+                    {
+                        id: 't9',
+                        name: '台灣紅玉鮮奶茶',
+                        en: 'Taiwan Ruby Fresh Milk Tea (TTES No.18)',
+                        tags: ['現泡茶', '鮮奶茶/厚奶茶可互換同等價錢'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 90 },
+                            { type: 'hot', label: '熱 (L杯)', price: 90 }
+                        ]
+                    },
+                    {
+                        id: 't10',
+                        name: '焙烏龍鮮奶茶',
+                        en: 'Oolong Tea Latte',
+                        tags: ['烘焙重工藝', '鮮奶茶/厚奶茶可互換同等價錢'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 80 },
+                            { type: 'hot', label: '熱 (L杯)', price: 80 }
+                        ]
+                    },
+                    {
+                        id: 't11',
+                        name: '經典巧克力鮮奶',
+                        en: 'Iced Signature Chocolate',
+                        tags: ['鮮奶茶/厚奶茶可互換同等價錢'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 70 },
+                            { type: 'hot', label: '熱 (M杯)', price: 60 }
+                        ]
+                    },
+                    {
+                        id: 't12',
+                        name: '手炒黑糖薑母鮮奶茶',
+                        en: 'Ginger Milk Tea',
+                        tags: ['鮮奶茶/厚奶茶可互換同等價錢'],
+                        prices: [
+                            { type: 'ice', label: '冰 (L杯)', price: 70 },
+                            { type: 'hot', label: '熱 (L杯)', price: 70 }
+                        ]
+                    },
+                    {
+                        id: 't13',
+                        name: '手炒黑糖薑母茶',
+                        en: 'Brown sugar and ginger tea',
+                        tags: ['僅限熱飲'],
+                        prices: [
+                            { type: 'hot', label: '熱 (M杯)', price: 55 }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'cat-coffee',
+                name: '單品項/咖啡',
+                shortName: '單品項/咖啡',
+                icon: 'fa-mug-saucer',
+                subtitle: '',
+                items: [
+                    {
+                        id: 'c1',
+                        name: '古早味冬瓜茶',
+                        en: 'Winter melon tea',
+                        tags: ['冰飲'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 40 }]
+                    },
+                    {
+                        id: 'c2',
+                        name: '冬瓜烏龍',
+                        en: 'White Gourd & Oolong Tea',
+                        tags: ['固定甜度'],
+                        sugarLimit: ['固定甜度'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 50 }]
+                    },
+                    {
+                        id: 'c3',
+                        name: '黑糖凍烏龍',
+                        en: 'Oolong jelly jinxuan',
+                        tags: ['內含黑糖凍'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 50 }]
+                    },
+                    {
+                        id: 'c4',
+                        name: '烏龍凍金萱',
+                        en: 'Oolong jelly jinxuan',
+                        tags: ['內含烏龍凍'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 55 }]
+                    },
+                    {
+                        id: 'c5',
+                        name: '葡萄凍金萱',
+                        en: 'Grape Jelly Jinxuan Tea',
+                        tags: ['內含葡萄凍'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 55 }]
+                    },
+                    {
+                        id: 'c6',
+                        name: '紫蘇梅烏龍',
+                        en: 'Green Plum & Green Tea',
+                        tags: ['固定甜度'],
+                        sugarLimit: ['固定甜度'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 55 }]
+                    },
+                    {
+                        id: 'c7',
+                        name: '百香果烏龍',
+                        en: 'Passion Fruit Green Tea',
+                        tags: ['固定甜度'],
+                        sugarLimit: ['固定甜度'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 60 }]
+                    },
+                    {
+                        id: 'c8',
+                        name: '多多烏龍',
+                        en: 'Yakult & Oolong Tea',
+                        tags: ['經典特調'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 60 }]
+                    },
+                    {
+                        id: 'c9',
+                        name: '美式咖啡',
+                        en: 'Americano',
+                        tags: ['採用星巴克咖啡豆'],
+                        prices: [
+                            { type: 'ice', label: '冰 (16oz)', price: 60 },
+                            { type: 'hot', label: '熱 (16oz)', price: 65 }
+                        ]
+                    },
+                    {
+                        id: 'c10',
+                        name: '拿鐵',
+                        en: 'Coffee Latte',
+                        tags: ['採用星巴克咖啡豆'],
+                        prices: [
+                            { type: 'ice', label: '冰 (16oz)', price: 70 },
+                            { type: 'hot', label: '熱 (16oz)', price: 75 }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'cat-milk',
+                name: '厚奶/好料報妳吃',
+                shortName: '厚奶/好料報妳吃',
+                icon: 'fa-whiskey-glass',
+                subtitle: '鮮奶茶/厚奶茶可以互換同等價錢｜鮮奶+雀巢奶精調製厚奶',
+                items: [
+                    {
+                        id: 'm1',
+                        name: '阿薩姆厚奶茶',
+                        en: 'Assam milk tea',
+                        tags: ['鮮奶+雀巢奶精調製厚奶'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 70 }]
+                    },
+                    {
+                        id: 'm2',
+                        name: '沖繩厚奶茶',
+                        en: 'Okinawa milk tea',
+                        tags: ['鮮奶+雀巢奶精調製厚奶'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 80 }]
+                    },
+                    {
+                        id: 'm3',
+                        name: '珍珠厚奶茶',
+                        en: 'Boba milk tea',
+                        tags: ['鮮奶+雀巢奶精調製厚奶'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 80 }]
+                    },
+                    {
+                        id: 'm4',
+                        name: '葡萄凍厚奶茶',
+                        en: 'Grape Jelly Milk Tea',
+                        tags: ['鮮奶+雀巢奶精調製厚奶'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 80 }]
+                    },
+                    {
+                        id: 'm5',
+                        name: '烏龍凍厚奶茶',
+                        en: 'Oolong jelly milk tea',
+                        tags: ['鮮奶+雀巢奶精調製厚奶'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 80 }]
+                    },
+                    {
+                        id: 'm6',
+                        name: '黑糖凍厚奶茶',
+                        en: 'Brown sugar jelly milk tea',
+                        tags: ['鮮奶+雀巢奶精調製厚奶'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 80 }]
+                    }
+                ]
+            },
+            {
+                id: 'cat-sparkling',
+                name: '氣泡飲（無咖啡因）',
+                shortName: '氣泡飲',
+                icon: 'fa-champagne-glasses',
+                subtitle: '',
+                items: [
+                    {
+                        id: 's1',
+                        name: '檸檬氣泡水',
+                        en: 'Lemon Sparkling Water',
+                        tags: ['無咖啡因', '固定冰量'],
+                        iceLimit: ['固定冰量'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 60 }]
+                    },
+                    {
+                        id: 's2',
+                        name: '綜合莓果氣泡飲',
+                        en: 'Mixed Berry Sparkling Drink',
+                        tags: ['無咖啡因'],
+                        prices: [{ type: 'ice', label: '冰 (L杯)', price: 75 }]
+                    }
+                ]
+            }
+        ];
+
+        // 甜度與冰量選項（完全對照菜單杯身設計）
+        const sugarOptions = [
+            { label: '正常甜', sub: 'Regular' },
+            { label: '8分(少糖)', sub: '80%' },
+            { label: '5分(半糖)', sub: 'Half' },
+            { label: '3分(微糖)', sub: 'Light' },
+            { label: '無糖', sub: 'Suga Free' }
+        ];
+
+        const iceOptions = [
+            { label: '正常冰', sub: 'Regular' },
+            { label: '少冰', sub: 'Easy (70% Ice)' },
+            { label: '微冰', sub: 'Light (30% Ice)' },
+            { label: '去冰/小碎冰', sub: 'Ice Free' },
+            { label: '常溫', sub: 'Room Temp' }
+        ];
+
+        const hotOptions = [
+            { label: '熱', sub: 'Hot' },
+            { label: '溫', sub: 'Warm' }
+        ];
+
+        // 狀態管理
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let cart = [];
+        let currentModalItem = null;
+        let selectedPriceObj = null;
+        let selectedSugar = '正常甜';
+        let selectedIce = '正常冰';
+        let modalQty = 1;
+
+        // 初始化頁面
+        function init() {
+            renderCategoryTabs();
+            renderMenu();
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.trim().toLowerCase();
+                document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery === '');
+                renderMenu();
+            });
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            searchQuery = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderMenu();
+        }
+
+        function toggleGuide() {
+            const content = document.getElementById('guideContent');
+            const chevron = document.getElementById('guideChevron');
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // 渲染分類切換標籤
+        function renderCategoryTabs() {
+            const container = document.getElementById('categoryTabs');
+            const allTabs = [
+                { id: 'all', name: '全部', icon: 'fa-border-all' },
+                ...menuData.map(c => ({ id: c.id, name: c.shortName, icon: c.icon }))
+            ];
+
+            container.innerHTML = allTabs.map(tab => {
+                const isActive = activeCategory === tab.id;
+                return `
+                    <button onclick="selectCategory('${tab.id}')" 
+                        class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                            isActive 
+                            ? 'bg-tea-red text-white shadow-sm' 
+                            : 'bg-white text-tea-green border border-tea-green/15 hover:bg-tea-paperDark'
+                        }">
+                        <i class="fa-solid ${tab.icon} ${isActive ? 'text-white' : 'text-tea-red'}"></i>
+                        <span>${tab.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(catId) {
+            activeCategory = catId;
+            renderCategoryTabs();
+            renderMenu();
+            window.scrollTo({ top: 140, behavior: 'smooth' });
+        }
+
+        // 渲染主菜單
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            let html = '';
+            let totalMatched = 0;
+
+            menuData.forEach(category => {
+                if (activeCategory !== 'all' && activeCategory !== category.id) return;
+
+                const filteredItems = category.items.filter(item => {
+                    if (!searchQuery) return true;
+                    const matchName = item.name.toLowerCase().includes(searchQuery);
+                    const matchEn = item.en.toLowerCase().includes(searchQuery);
+                    const matchTags = item.tags.some(t => t.toLowerCase().includes(searchQuery));
+                    const matchCat = category.name.toLowerCase().includes(searchQuery);
+                    return matchName || matchEn || matchTags || matchCat;
+                });
+
+                if (filteredItems.length === 0) return;
+                totalMatched += filteredItems.length;
+
+                html += `
+                    <section class="space-y-3">
+                        <!-- 分類標題列 -->
+                        <div class="flex items-center justify-between border-b-2 border-tea-green/15 pb-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-tea-green text-tea-goldLight flex items-center justify-center text-xs shadow-2xs">
+                                    <i class="fa-solid ${category.icon}"></i>
+                                </span>
+                                <h2 class="font-serif text-lg font-bold text-tea-green">${category.name}</h2>
+                            </div>
+                            <span class="text-xs text-tea-green/60 font-medium">${filteredItems.length} 款</span>
+                        </div>
+
+                        <!-- 分類副標說明（如厚奶/好料報妳吃專屬提示） -->
+                        ${category.subtitle ? `
+                            <div class="bg-amber-50/95 border border-tea-gold/50 text-tea-green text-xs px-3 py-2.5 rounded-xl flex items-start gap-2">
+                                <i class="fa-solid fa-star text-tea-gold mt-0.5 shrink-0"></i>
+                                <span class="font-bold leading-relaxed">${category.subtitle}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- 飲品卡片清單 -->
+                        <div class="space-y-2.5">
+                            ${filteredItems.map(item => renderDrinkCard(item)).join('')}
+                        </div>
+                    </section>
+                `;
+            });
+
+            if (totalMatched === 0) {
+                html = `
+                    <div class="text-center py-12 paper-card rounded-2xl">
+                        <i class="fa-solid fa-mug-hot text-4xl text-tea-green/20 mb-3"></i>
+                        <p class="text-sm font-bold text-tea-green">找不到符合「${searchQuery}」的飲品</p>
+                        <p class="text-xs text-gray-500 mt-1">試試看搜尋其他關鍵字，或點選下方按鈕顯示全部</p>
+                        <button onclick="clearSearch()" class="mt-4 bg-tea-red text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm">
+                            顯示全部菜單
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // 渲染單一飲品卡片
+        function renderDrinkCard(item) {
+            const tagsHtml = item.tags.map(tag => {
+                let badgeStyle = 'bg-tea-green/5 text-tea-green border-tea-green/15';
+                if (tag.includes('星巴克')) {
+                    badgeStyle = 'bg-emerald-800 text-white border-emerald-800 font-bold';
+                } else if (tag.includes('固定甜度') || tag.includes('固定冰量') || tag.includes('限微少正') || tag.includes('僅限熱飲')) {
+                    badgeStyle = 'bg-tea-red/10 text-tea-red border-tea-red/25 font-bold';
+                } else if (tag.includes('三層坪') || tag.includes('蜜香') || tag.includes('焙香') || tag.includes('清香') || tag.includes('烘焙重工藝')) {
+                    badgeStyle = 'bg-rose-50 text-rose-900 border-rose-200/80';
+                } else if (tag.includes('雀巢奶精') || tag.includes('互換')) {
+                    badgeStyle = 'bg-amber-50 text-amber-900 border-amber-300/70';
+                }
+                return `<span class="text-[11px] px-2 py-0.5 rounded-md border ${badgeStyle}">${tag}</span>`;
+            }).join('');
+
+            const pricesHtml = item.prices.map(p => {
+                const isIce = p.type === 'ice';
+                return `
+                    <div class="flex items-center justify-end gap-1.5">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold px-1.5 py-0.5 rounded ${
+                            isIce ? 'bg-sky-50 text-sky-700 border border-sky-200/70' : 'bg-rose-50 text-tea-red border border-rose-200/70'
+                        }">
+                            ${isIce ? '<i class="fa-regular fa-snowflake text-[10px]"></i>' : '<i class="fa-solid fa-fire text-[10px]"></i>'}
+                            ${p.label}
+                        </span>
+                        <span class="font-serif font-bold text-base text-tea-green w-10 text-right">$${p.price}</span>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div onclick="openItemModal('${item.id}')" 
+                    class="paper-card rounded-2xl p-3.5 active:scale-[0.99] transition cursor-pointer flex justify-between items-center gap-3 hover:border-tea-gold">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-base text-tea-green leading-snug">${item.name}</h3>
+                        <p class="text-[11px] text-tea-green/55 truncate mt-0.5">${item.en}</p>
+                        ${tagsHtml ? `<div class="flex flex-wrap gap-1 mt-2">${tagsHtml}</div>` : ''}
+                    </div>
+                    
+                    <div class="shrink-0 flex flex-col items-end gap-1.5">
+                        <div class="space-y-1">
+                            ${pricesHtml}
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-tea-red bg-tea-red/10 px-2.5 py-1 rounded-full mt-0.5">
+                            <i class="fa-solid fa-plus text-[10px]"></i> 客製點單
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 開啟飲品客製化彈窗
+        function openItemModal(itemId) {
+            let foundItem = null;
+            let foundCatName = '';
+            for (const cat of menuData) {
+                const item = cat.items.find(i => i.id === itemId);
+                if (item) {
+                    foundItem = item;
+                    foundCatName = cat.name;
+                    break;
+                }
+            }
+            if (!foundItem) return;
+
+            currentModalItem = foundItem;
+            modalQty = 1;
+            selectedPriceObj = foundItem.prices[0];
+            document.getElementById('modalNoteInput').value = '';
+
+            // 預設甜度
+            selectedSugar = foundItem.sugarLimit ? foundItem.sugarLimit[0] : '正常甜';
+
+            // 預設冰量
+            if (selectedPriceObj.type === 'hot') {
+                selectedIce = '熱';
+            } else if (foundItem.iceLimit) {
+                selectedIce = foundItem.iceLimit[0];
+            } else {
+                selectedIce = '正常冰';
+            }
+
+            document.getElementById('modalCategoryTag').textContent = foundCatName;
+            document.getElementById('modalTitle').textContent = foundItem.name;
+            document.getElementById('modalEnTitle').textContent = foundItem.en;
+            document.getElementById('modalQty').textContent = modalQty;
+
+            const tagsEl = document.getElementById('modalTags');
+            tagsEl.innerHTML = foundItem.tags.map(t => 
+                `<span class="text-[11px] bg-tea-green/5 text-tea-green px-2 py-0.5 rounded-md border border-tea-green/10">${t}</span>`
+            ).join('');
+
+            renderModalOptions();
+            document.getElementById('itemModal').classList.remove('hidden');
+        }
+
+        function closeItemModal() {
+            document.getElementById('itemModal').classList.add('hidden');
+        }
+
+        // 渲染彈窗內的選項按鈕
+        function renderModalOptions() {
+            // 1. 冷熱與杯型
+            const tempContainer = document.getElementById('modalTempOptions');
+            const tempHint = document.getElementById('tempConstraintHint');
+
+            if (currentModalItem.prices.length === 1 && currentModalItem.prices[0].type === 'hot') {
+                tempHint.textContent = '※ 此飲品僅限熱飲';
+                tempHint.classList.remove('hidden');
+            } else {
+                tempHint.classList.add('hidden');
+            }
+
+            tempContainer.innerHTML = currentModalItem.prices.map((p, idx) => {
+                const isSelected = selectedPriceObj.label === p.label;
+                const isIce = p.type === 'ice';
+                return `
+                    <button onclick="selectModalTemp(${idx})" 
+                        class="p-2.5 rounded-xl border text-left transition flex items-center justify-between ${
+                            isSelected 
+                            ? 'bg-tea-green text-white border-tea-green shadow-sm' 
+                            : 'bg-white text-tea-green border-tea-green/15'
+                        }">
+                        <span class="text-xs font-bold flex items-center gap-1.5">
+                            ${isIce ? '<i class="fa-regular fa-snowflake text-sky-400"></i>' : '<i class="fa-solid fa-fire text-rose-400"></i>'}
+                            ${p.label}
+                        </span>
+                        <span class="font-serif font-bold ${isSelected ? 'text-tea-goldLight' : 'text-tea-green'}">$${p.price}</span>
+                    </button>
+                `;
+            }).join('');
+
+            // 2. 甜度選項
+            const sugarContainer = document.getElementById('modalSugarOptions');
+            const sugarHint = document.getElementById('sugarConstraintHint');
+            
+            if (currentModalItem.sugarLimit) {
+                sugarHint.textContent = `※ 此飲品為${currentModalItem.sugarLimit.join('/')}`;
+                sugarHint.classList.remove('hidden');
+                sugarContainer.className = 'grid grid-cols-2 gap-2';
+                sugarContainer.innerHTML = currentModalItem.sugarLimit.map(s => `
+                    <button onclick="selectModalSugar('${s}')" 
+                        class="py-2 px-2 rounded-xl border text-xs font-bold transition bg-tea-red text-white border-tea-red shadow-2xs">
+                        ${s}
+                    </button>
+                `).join('');
+            } else {
+                sugarHint.classList.add('hidden');
+                sugarContainer.className = 'grid grid-cols-3 gap-1.5';
+                sugarContainer.innerHTML = sugarOptions.map(sObj => {
+                    const isSelected = selectedSugar === sObj.label;
+                    return `
+                        <button onclick="selectModalSugar('${sObj.label}')" 
+                            class="py-1.5 px-1 rounded-xl border transition text-center ${
+                                isSelected 
+                                ? 'bg-tea-red text-white border-tea-red shadow-2xs' 
+                                : 'bg-white text-tea-green border-tea-green/15'
+                            }">
+                            <div class="text-xs font-bold">${sObj.label}</div>
+                            <div class="text-[9px] ${isSelected ? 'text-white/80' : 'text-gray-400'}">${sObj.sub}</div>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            // 3. 冰量選項
+            const iceContainer = document.getElementById('modalIceOptions');
+            const iceHint = document.getElementById('iceConstraintHint');
+
+            if (selectedPriceObj.type === 'hot') {
+                const validLabels = hotOptions.map(h => h.label);
+                if (!validLabels.includes(selectedIce)) selectedIce = '熱';
+                iceHint.classList.add('hidden');
+                iceContainer.className = 'grid grid-cols-2 gap-2';
+                iceContainer.innerHTML = hotOptions.map(hObj => {
+                    const isSelected = selectedIce === hObj.label;
+                    return `
+                        <button onclick="selectModalIce('${hObj.label}')" 
+                            class="py-1.5 px-2 rounded-xl border transition text-center ${
+                                isSelected 
+                                ? 'bg-tea-red text-white border-tea-red shadow-2xs' 
+                                : 'bg-white text-tea-green border-tea-green/15'
+                            }">
+                            <div class="text-xs font-bold">${hObj.label}</div>
+                            <div class="text-[9px] ${isSelected ? 'text-white/80' : 'text-gray-400'}">${hObj.sub}</div>
+                        </button>
+                    `;
+                }).join('');
+            } else if (currentModalItem.iceLimit) {
+                const allowed = currentModalItem.iceLimit;
+                if (!allowed.includes(selectedIce)) selectedIce = allowed[0];
+                iceHint.textContent = `※ 此飲品${allowed.join('/')}`;
+                iceHint.classList.remove('hidden');
+                iceContainer.className = allowed.length === 1 ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-1.5';
+                iceContainer.innerHTML = allowed.map(iceLabel => {
+                    const isSelected = selectedIce === iceLabel;
+                    const foundSub = iceOptions.find(o => o.label === iceLabel)?.sub || 'Fixed Ice';
+                    return `
+                        <button onclick="selectModalIce('${iceLabel}')" 
+                            class="py-1.5 px-1.5 rounded-xl border transition text-center ${
+                                isSelected 
+                                ? 'bg-tea-red text-white border-tea-red shadow-2xs' 
+                                : 'bg-white text-tea-green border-tea-green/15'
+                            }">
+                            <div class="text-xs font-bold">${iceLabel}</div>
+                            <div class="text-[9px] ${isSelected ? 'text-white/80' : 'text-gray-400'}">${foundSub}</div>
+                        </button>
+                    `;
+                }).join('');
+            } else {
+                const validLabels = iceOptions.map(i => i.label);
+                if (!validLabels.includes(selectedIce)) selectedIce = '正常冰';
+                iceHint.classList.add('hidden');
+                iceContainer.className = 'grid grid-cols-3 gap-1.5';
+                iceContainer.innerHTML = iceOptions.map(iObj => {
+                    const isSelected = selectedIce === iObj.label;
+                    return `
+                        <button onclick="selectModalIce('${iObj.label}')" 
+                            class="py-1.5 px-1 rounded-xl border transition text-center ${
+                                isSelected 
+                                ? 'bg-tea-red text-white border-tea-red shadow-2xs' 
+                                : 'bg-white text-tea-green border-tea-green/15'
+                            }">
+                            <div class="text-xs font-bold">${iObj.label}</div>
+                            <div class="text-[9px] ${isSelected ? 'text-white/80' : 'text-gray-400'}">${iObj.sub}</div>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            updateModalSubtotal();
+        }
+
+        function selectModalTemp(idx) {
+            selectedPriceObj = currentModalItem.prices[idx];
+            renderModalOptions();
+        }
+
+        function selectModalSugar(s) {
+            selectedSugar = s;
+            renderModalOptions();
+        }
+
+        function selectModalIce(ice) {
+            selectedIce = ice;
+            renderModalOptions();
+        }
+
+        function changeModalQty(delta) {
+            modalQty = Math.max(1, modalQty + delta);
+            document.getElementById('modalQty').textContent = modalQty;
+            updateModalSubtotal();
+        }
+
+        function updateModalSubtotal() {
+            const sub = selectedPriceObj.price * modalQty;
+            document.getElementById('modalSubtotal').textContent = sub;
+        }
+
+        // 加入購物車
+        function addToCart() {
+            const noteText = document.getElementById('modalNoteInput').value.trim();
+
+            const existingIdx = cart.findIndex(item => 
+                item.id === currentModalItem.id && 
+                item.tempLabel === selectedPriceObj.label &&
+                item.sugar === selectedSugar &&
+                item.ice === selectedIce &&
+                item.note === noteText
+            );
+
+            if (existingIdx > -1) {
+                cart[existingIdx].qty += modalQty;
+            } else {
+                cart.push({
+                    id: currentModalItem.id,
+                    name: currentModalItem.name,
+                    tempLabel: selectedPriceObj.label,
+                    unitPrice: selectedPriceObj.price,
+                    sugar: selectedSugar,
+                    ice: selectedIce,
+                    note: noteText,
+                    qty: modalQty
+                });
+            }
+
+            closeItemModal();
+            updateCartUI();
+            showToast(`已加入「${currentModalItem.name}」x${modalQty}`);
+        }
+
+        // 更新購物車 UI 與底部懸浮列
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+
+            document.getElementById('cartBadge').textContent = totalQty;
+            document.getElementById('cartTotalPrice').textContent = totalPrice;
+            document.getElementById('cartModalCount').textContent = totalQty;
+            document.getElementById('cartModalTotal').textContent = totalPrice;
+
+            const bar = document.getElementById('floatingCartBar');
+            if (totalQty > 0) {
+                bar.classList.remove('translate-y-28');
+            } else {
+                bar.classList.add('translate-y-28');
+            }
+
+            renderCartList();
+        }
+
+        function openCartModal() {
+            renderCartList();
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        function renderCartList() {
+            const listEl = document.getElementById('cartItemsList');
+            if (cart.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <i class="fa-solid fa-basket-shopping text-3xl mb-2"></i>
+                        <p class="text-xs">目前購物車是空的喔！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = cart.map((item, idx) => `
+                <div class="bg-white rounded-xl p-3 border border-tea-green/10 flex items-center justify-between gap-2 shadow-2xs">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-sm text-tea-green">${item.name}</div>
+                        <div class="text-[11px] text-tea-green/70 mt-0.5">
+                            ${item.tempLabel} ・ ${item.sugar} ・ ${item.ice}
+                        </div>
+                        ${item.note ? `
+                            <div class="text-[11px] text-amber-700 mt-0.5">
+                                備註：${item.note}
+                            </div>
+                        ` : ''}
+                        <div class="font-serif font-bold text-sm text-tea-green mt-1">
+                            $${item.unitPrice * item.qty} <span class="text-[10px] font-sans text-gray-400 font-normal">($${item.unitPrice}/杯)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-tea-paper border border-tea-green/10 rounded-lg p-1 shrink-0">
+                        <button onclick="updateCartItemQty(${idx}, -1)" class="w-7 h-7 rounded bg-white text-tea-green font-bold text-xs shadow-2xs">-</button>
+                        <span class="w-6 text-center text-xs font-bold text-tea-green">${item.qty}</span>
+                        <button onclick="updateCartItemQty(${idx}, 1)" class="w-7 h-7 rounded bg-white text-tea-green font-bold text-xs shadow-2xs">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCartItemQty(idx, delta) {
+            cart[idx].qty += delta;
+            if (cart[idx].qty <= 0) {
+                cart.splice(idx, 1);
+            }
+            updateCartUI();
+            if (cart.length === 0) {
+                closeCartModal();
+            }
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+            closeCartModal();
+            showToast('已清空購物車');
+        }
+
+        // 組合格式化的點單文字
+        function buildOrderSummaryText() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+
+            let text = `【品茶香 TEA - The Best Taiwanese Tea】點單明細\n`;
+            text += `------------------------\n`;
+            cart.forEach((item, i) => {
+                text += `${i + 1}. ${item.name} (${item.tempLabel})\n`;
+                text += `   ${item.sugar} / ${item.ice} x ${item.qty}杯 = $${item.unitPrice * item.qty}\n`;
+                if (item.note) {
+                    text += `   ※備註：${item.note}\n`;
+                }
+            });
+            text += `------------------------\n`;
+            text += `總計：${totalQty} 杯 / 總金額：$${totalPrice} 元`;
+            return text;
+        }
+
+        // 一鍵複製點單明細文字
+        function copyOrderText() {
+            if (cart.length === 0) return;
+            const text = buildOrderSummaryText();
+
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('點單明細已複製！可直接貼上傳送');
+            } catch (err) {
+                showToast('複製失敗，請直接出示畫面點餐');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // 直接傳送至 LINE
+        function sendViaLine() {
+            if (cart.length === 0) return;
+            const text = buildOrderSummaryText();
+
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (e) {}
+            document.body.removeChild(textarea);
+
+            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+            window.open(lineUrl, '_blank');
+        }
+
+        // 提示訊息
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2400);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
